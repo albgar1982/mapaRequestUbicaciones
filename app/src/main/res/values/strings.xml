@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MagicKeys</string>
+    <string name="user">Usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="next">SIGUIENTE</string>
+    <string name="magic_keys">Magic KEYS</string>
+    <string name="usuario">Usuario</string>
+</resources>

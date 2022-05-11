@@ -32,6 +32,10 @@
             android:exported="true" />
 
         <activity
+            android:name=".StreetViewActivity"
+            android:exported="true" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true" />
         <meta-data android:name="com.google.android.geo.API_KEY"

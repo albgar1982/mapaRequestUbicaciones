@@ -1,239 +1,231 @@
 package com.example.maparequestubicaciones
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Criteria
-import android.location.Location
-import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.viewModels
 import com.example.maparequestubicaciones.databinding.ActivityMainBinding
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 
-class MainActivity :  AppCompatActivity(),OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMarkerClickListener {
 
-
-
-    companion object{
-
-        private val TAG = MainActivity::class.java.simpleName
-        private const val DEFAULT_ZOOM = 15
-        private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-
-        // Keys for storing activity state.
-        // [START maps_current_place_state_keys]
-        private const val KEY_CAMERA_POSITION = "camera_position"
-        private const val KEY_LOCATION = "location"
-        // [END maps_current_place_state_keys]
-
-        // Used for selecting the current place.
-        private const val M_MAX_ENTRIES = 5
-
+    companion object {
+        const val REQUEST_CODE_LOCATION = 0
         const val TAG_USER = "TAG_USER"
 
-        fun launch(context: Context, usuario: String){
-            val intent = Intent(context,MainActivity::class.java)
-            intent.putExtra(TAG_USER,usuario)
+        fun launch(context: Context, usuario: String) {
+            val intent = Intent(context, MainActivity::class.java)
+            intent.putExtra(TAG_USER, usuario)
             context.startActivity(intent)
         }
     }
 
+    @SuppressLint("PotentialBehaviorOverride")
+    override fun onMapReady(googleMap: GoogleMap) {
+        map=googleMap
+        //Cuando el mapa se cree, vamos a comprobar si están los permisos y a intentar localizar al usuario
+        enableLocation()
+        map.setOnMarkerClickListener(this)
+    }
+
+    override fun onMarkerClick(p0: Marker): Boolean {
+        TODO("Not yet implemented")
+    }
+
     private lateinit var binding: ActivityMainBinding
-    private val viewModel : MainActivityViewModel by viewModels()
-    lateinit var manejadorLoc: LocationManager
-    lateinit var proveedor: String
-    private var lastKnownLocation: Location? = null
-    private var cameraPosition: CameraPosition? = null
     lateinit var map: GoogleMap
+
+    @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION)
-            cameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION)
-        }
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        val tagUser = intent.getStringExtra(TAG_USER)
+        val usuarioJson = intent.getStringExtra(TAG_USER)
         val gson = Gson()
-        val user = gson.fromJson(tagUser,Usuario::class.java)
+        val usuario = gson.fromJson(usuarioJson, Usuario::class.java)
+        var pistaActual = ""
+        var markerPrimero : Marker? = null
+        var markerSegundo : Marker? = null
+        var markerTercero : Marker? = null
 
-        binding.tvNombreUsuario.text=user.nombre
+        binding.tvNombreUsuario.text = usuario.nombre
+        binding.goal.setImageResource(R.mipmap.goal)
 
-        var i=0
-        while (!user.listaRutas[i].seleccionada)
+        var i = 0
+        while (!usuario.listaRutas[i].seleccionada)
             i++
-        initObserver()
 
-        iniciarMapa(user.listaRutas[i])
-        //viewModel.hacerLlamada()
-    }
-
-    private fun initObserver() {
-        viewModel.isVisible.observe(this) { isVisible ->
-            if (isVisible)
-                setVisible()
+        var j = 0
+        var salir = false
+        while (!salir) {
+            if (!usuario.listaRutas[i].listaUbicaciones[j].coleccionado)
+                salir = true
             else
-                setGone()
+                j++
         }
 
-        viewModel.responseText.observe(this) {
+        binding.close.setOnClickListener {
+            if (binding.pista.visibility == View.VISIBLE)
+                binding.pista.visibility = View.GONE
+            else
+                binding.pista.visibility = View.VISIBLE
 
-            val listaUbicaciones = it.listaUbicaciones
-            val primeraLatitud=listaUbicaciones[0].latitud
-            println("Primera latitud:$primeraLatitud")
+            if (binding.pista.visibility == View.GONE)
+                binding.close.setImageResource(R.mipmap.uparrow)
+            else
+                binding.close.setImageResource(R.mipmap.cancel)
+
 
         }
-    }
 
-    private fun setVisible(){
-        binding.pbDownloading.visibility = View.VISIBLE
-    }
-    private fun setGone(){
-        binding.pbDownloading.visibility = View.GONE
-    }
+        pistaActual = usuario.listaRutas[i].listaUbicaciones[j].pista
 
-    private fun iniciarMapa(ruta : Ruta){
-        //Manejador del servicio de localización
-        manejadorLoc = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        //Creamos un criterio según el cual...
-        val criterio = Criteria().apply {
-            isCostAllowed = false
-            powerRequirement = Criteria.POWER_LOW
-            //isAltitudeRequired=false
-            //accuracy = Criteria.ACCURACY_FINE
-            //TODO("Comparar la disponibilidad del GPS y Network(O de cualquier proveedor de localizaciones), para decidir cuál usar en cada caso")
-        }
-        //...buscamos el mejor proveedor...
-        proveedor = manejadorLoc.getBestProvider(criterio, true).toString()
-        //...y lo mostramos
-        println("Mejor proveedor: $proveedor\n")
-
-        println("Última localización conocida:")
-
-        //Comprobamos si tenemos los permisos necesarios. Si no es así, los pedimos
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            //Si no están autorizados los permisos, se piden:
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                101
-            )
-        }
-        //Intentamos acceder a la última localización a través del proveedor(Abrir antes el Maps y darle a ubicar, SI NO, NO FUNCIONARÁ)
-        muestraLocaliz(manejadorLoc.getLastKnownLocation(proveedor)) //getLastKnownLocation() devuelve un Location, que es el parámetro que espera muestraLocaliz()
-
-
-
-        manejadorLoc = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        //Comprobamos si tenemos los permisos necesarios. Si no es así, los pedimos
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            //Si no están autorizados los permisos, se piden:
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                101
-            )
-        }
+        binding.pista.text = pistaActual
         val mapFragment = supportFragmentManager.findFragmentById(R.id.mapa) as SupportMapFragment
+
+        val ruta = usuario.listaRutas[i]
         // Obtenemos el mapa de forma asíncrona (notificará cuando esté listo)
         mapFragment.getMapAsync { googleMap ->
 
             ruta.listaUbicaciones.forEach {
-                val lat=it.latitud
-                val long=it.longitud
-                val latLng=LatLng(lat,long)
-                googleMap.addMarker(MarkerOptions().position(latLng).title(it.nombreCoordenada)
-                    .anchor(0.5F,0.5F)
+
+                markerPrimero = googleMap.addMarker(
+                    MarkerOptions()
+                        .position(LatLng(ruta.listaUbicaciones[0].latitud, ruta.listaUbicaciones[0].longitud))
+                        .title("Perth")
                 )
+                markerPrimero?.tag = 0
+            markerSegundo = googleMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(ruta.listaUbicaciones[1].latitud, ruta.listaUbicaciones[1].longitud))
+                    .title("Sydney")
+            )
+                markerSegundo?.tag = 0
+            markerTercero = googleMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(ruta.listaUbicaciones[2].latitud, ruta.listaUbicaciones[2].longitud))
+                    .title("Brisbane")
+            )
+                markerTercero?.tag = 0
+
+            // Set a listener for marker click.
+            //map.setOnMarkerClickListener(this)
+
+
+
+
+
+
+
+
+                //googleMap.setOnMarkerClickListener()
+
+                googleMap.setOnMapClickListener {
+
+                }
             }
-            val ultimaCoordenada = ruta.listaUbicaciones[ruta.listaUbicaciones.size-1]
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(ultimaCoordenada.latitud,ultimaCoordenada.longitud)))
-                 // googleMap.setMinZoomPreference(googleMap.maxZoomLevel)
+            val ultimaCoordenada = ruta.listaUbicaciones[ruta.listaUbicaciones.size - 1]
+            googleMap.moveCamera(
+                CameraUpdateFactory.newLatLng(
+                    LatLng(
+                        ultimaCoordenada.latitud,
+                        ultimaCoordenada.longitud
+                    )
+                )
+            )
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(15.0F))
-            googleMap.isBuildingsEnabled=true
-            googleMap.isMyLocationEnabled=true
+            googleMap.isBuildingsEnabled = true
+            googleMap.isMyLocationEnabled = true
 
             googleMap.setOnMyLocationClickListener {
                 println("${it.latitude} , ${it.longitude}, ${it.provider}")
             }
-           /* ruta?.let {
-                ubi1 =
-                    LatLng(it.listaUbicaciones[0].latitud, it.listaUbicaciones[0].longitud)
-                ubi2 =
-                    LatLng(it.listaUbicaciones[1].latitud, it.listaUbicaciones[1].longitud)
-                ubi3 =
-                    LatLng(it.listaUbicaciones[2].latitud, it.listaUbicaciones[2].longitud)
-                /*
-                       Ubicacion("Plaza Benavente",40.4146,-3.7037,"",false),
-                       Ubicacion("Plaza Santa Ana",40.4144,-3.7011,"",false),
-                       Ubicacion("Antón Martín",40.4124,-3.6993,"",false)
-                       */
-                googleMap.addMarker(MarkerOptions().position(ubi1).title("Plaza Benavente"))
-                googleMap.addMarker(MarkerOptions().position(ubi2).title("Plaza Santa Ana"))
-                googleMap.addMarker(MarkerOptions().position(ubi3).title("Antón Martín"))
-                println("UBICACION  UNOOOOO--------------\n${ubi1.latitude}")
-            }
+        }
+    }
 
+    private fun isLocationPermissionGranted() = ContextCompat.checkSelfPermission(
+        this, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
 
-            println("ESTA LISTO EL MAPA?")
-            println(mapaListo)*/
+    @SuppressLint("MissingPermission")
+    private fun enableLocation() {
 
+        //Si el mapa no está inicializado, sal
+        if (!::map.isInitialized)
+            return
+        //Si se puede porque están los permisos, activa la localización
+        if (isLocationPermissionGranted()) {
+            map.isMyLocationEnabled = true
+        } else
+        //Si no, llamamos a esta función
+            requestLocationPermission()
+    }
+
+    private fun requestLocationPermission() {
+        //Si no están los permisos porque los rechazó, se lo decimos
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        ) {
+            Toast.makeText(this, "Vaya a ajustes y acepte los permisos", Toast.LENGTH_LONG).show()
+        } else
+        //Si no, se los pedimos
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_CODE_LOCATION
+            )
+    }
+
+    @SuppressLint("MissingSuperCall", "MissingPermission")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            //Si los acepta, activamos la localización
+            REQUEST_CODE_LOCATION -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                map.isMyLocationEnabled = true
+            } else
+            //Si no, le decimos que a qué aspira
+                Toast.makeText(
+                    this,
+                    "Vaya a ajustes y acepte los permisos, que va a SER INCREÍBLE",
+                    Toast.LENGTH_LONG
+                ).show()
 
         }
     }
-    override fun onSaveInstanceState(outState: Bundle) {
-        map.let { map ->
-            outState.putParcelable(KEY_CAMERA_POSITION, map.cameraPosition)
-            outState.putParcelable(KEY_LOCATION, lastKnownLocation)
-        }
-        super.onSaveInstanceState(outState)
-    }
-    override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
 
 
+    private fun getUrl(origen: LatLng, destino: LatLng, modo: String): String {
+        val cadOrigen = "origin=" + origen.latitude + "," + origen.longitude
+        val cadDestino = "destination=" + destino.latitude + "," + destino.longitude
+        val cadModo = "mode=$modo"
+        val parametros = "$cadOrigen&$cadDestino&$cadModo"
+        return "https://maps.googleapis.com/maps/api/directions/json?" + parametros + "&key=" + getString(
+            R.string.google_maps_key
+        )
     }
-    private fun muestraLocaliz(localizacion: Location?) {
-        if (localizacion == null)
-            println("Localizacion desconocida\n")
-        else
-            println(localizacion.toString() + "\n")
-    }
+
 
 
 

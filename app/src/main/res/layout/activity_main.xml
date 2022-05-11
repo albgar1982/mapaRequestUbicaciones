@@ -18,18 +18,8 @@ tools:context=".MainActivity">
     android:layout_marginTop="40dp"
     />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
 
-        android:id="@+id/floatingActionButton"
-        android:layout_width="85dp"
-        android:layout_height="108dp"
-        android:layout_margin="15dp"
-        android:clickable="true"
-        android:contentDescription="@string/usuario"
-        android:focusable="true"
 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <fragment
         android:id="@+id/mapa"
@@ -41,20 +31,52 @@ tools:context=".MainActivity">
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.0"
         tools:ignore="FragmentTagUsage" />
-
 
     <TextView
         android:id="@+id/tv_nombreUsuario"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Usuario"
-        android:textSize="20dp"
+        android:textSize="20sp"
 
-        app:layout_constraintEnd_toEndOf="@+id/floatingActionButton"
-        app:layout_constraintStart_toStartOf="@+id/floatingActionButton"
-        app:layout_constraintTop_toBottomOf="@+id/floatingActionButton" />
+        app:layout_constraintEnd_toEndOf="@+id/goal"
+        app:layout_constraintStart_toStartOf="@+id/goal"
+        app:layout_constraintTop_toBottomOf="@+id/goal" />
 
+    <TextView
+        android:id="@+id/pista"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="25dp"
+        android:textSize="25sp"
+        android:text=""
+        android:background="@drawable/rounded_corner"/>
+
+    <ImageView
+
+        android:id="@+id/close"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:src="@mipmap/cancel"
+        app:layout_constraintBottom_toTopOf="@id/pista"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/goal"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_margin="10dp"
+        android:src="@mipmap/goal"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

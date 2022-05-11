@@ -47,7 +47,7 @@ class MainActivityViewModel : ViewModel() {
 
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                request.url("https://2939-81-0-34-240.eu.ngrok.io/getRuta/Benavente")
+                request.url("https://adf4-139-47-74-123.eu.ngrok.io/getRuta/Benavente")
 
                 val call = client.newCall(request.build())
                 call.enqueue(object : Callback {

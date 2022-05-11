@@ -53,7 +53,7 @@ class LoginActivityViewModel : ViewModel() {
     fun hacerLlamadaRegistro(contraseniaCifrada : String,usuario: String,context: Context) {
         val client = OkHttpClient()
         val request = Request.Builder()
-        request.url("https://f812-90-167-202-19.eu.ngrok.io/appendUser/$usuario")
+        request.url("https://e770-139-47-74-123.eu.ngrok.io/appendUser/$usuario")
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = contraseniaCifrada.toRequestBody(mediaType)
         println("Envío en el requestBody la contra cifrada: $contraseniaCifrada")

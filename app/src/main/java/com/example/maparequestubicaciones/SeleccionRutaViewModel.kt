@@ -44,7 +44,7 @@ class SeleccionRutaViewModel : ViewModel() {
                 setIsVisibleInMainThread(true)
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                request.url("https://f812-90-167-202-19.eu.ngrok.io/conseguirUsuario/$token")
+                request.url("https://e770-139-47-74-123.eu.ngrok.io/conseguirUsuario/$token")
                 println("LLamando para conseguir el usuario...")
                 val call = client.newCall(request.build())
 

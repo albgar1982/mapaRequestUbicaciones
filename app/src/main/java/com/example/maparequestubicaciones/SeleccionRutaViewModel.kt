@@ -36,27 +36,23 @@ class SeleccionRutaViewModel : ViewModel() {
         _user.value = value
     }
 
-    fun hacerLlamadaUsuario(token: String, context: Context) {
+    fun hacerLlamadaRutas(token: String, context: Context) {
         viewModelScope.launch {
 
 
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.IO) { //En un hilo secundario
                 setIsVisibleInMainThread(true)
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                request.url("https://e770-139-47-74-123.eu.ngrok.io/conseguirUsuario/$token")
-                println("LLamando para conseguir el usuario...")
+                request.url("https://b87d-139-47-74-123.eu.ngrok.io/getListRutas")
+                println("LLamando para conseguir las rutas...")
                 val call = client.newCall(request.build())
 
                 call.enqueue(object : Callback {
 
                     override fun onFailure(call: Call, e: IOException) {
-
-
                         Log.d("Alberto", "Error en el onFailure")
                         println(e.toString())
-
-
                     }
 
                     @SuppressLint("SetTextI18n")
@@ -64,15 +60,13 @@ class SeleccionRutaViewModel : ViewModel() {
                         response.body?.let { responseBody ->
 
                             val body = responseBody.string()
+                            //Debería llegar un string con las rutas
                             println(body)
-                            if (body == "ERROR") {
-                                LoginActivity.launch(context)
-                                println("FALLO en la llamada para conseguir el usuario, volvemos a LoginActivity")
-                            } else
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    setResponseTextInMainThread(body)
 
-                                }
+                            CoroutineScope(Dispatchers.Main).launch {
+                                setIsVisibleInMainThread(false)
+                                setResponseTextInMainThread(body)
+                            }
                         }
                     }
                 })

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_principal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="20dp"
-    android:id="@+id/itemRutasLayout">
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/tv_nombreRuta"
-        android:layout_width="wrap_content"
+        android:id="@+id/tv_nombre"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="NombreRuta"
-        android:textSize="30sp"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="32sp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/nombre"/>
 
-        app:layout_constraintTop_toTopOf="parent" />
-
+</LinearLayout>
+<!--
     <TextView
         android:id="@+id/llavesColeccionadas"
         android:layout_width="wrap_content"
@@ -29,5 +29,4 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_nombreRuta"
         app:layout_constraintStart_toEndOf="@+id/tv_nombreRuta"
         app:layout_constraintTop_toTopOf="@+id/tv_nombreRuta" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+-->

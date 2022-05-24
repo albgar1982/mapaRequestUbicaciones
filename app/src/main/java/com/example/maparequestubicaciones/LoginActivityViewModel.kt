@@ -53,7 +53,7 @@ class LoginActivityViewModel : ViewModel() {
     fun hacerLlamadaRegistro(contraseniaCifrada : String,usuario: String,context: Context) {
         val client = OkHttpClient()
         val request = Request.Builder()
-        request.url("https://e770-139-47-74-123.eu.ngrok.io/appendUser/$usuario")
+        request.url("https://b87d-139-47-74-123.eu.ngrok.io/loguear/$usuario")
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = contraseniaCifrada.toRequestBody(mediaType)
         println("Envío en el requestBody la contra cifrada: $contraseniaCifrada")
@@ -71,18 +71,18 @@ class LoginActivityViewModel : ViewModel() {
 
                 response.body?.let { responseBody ->
                     val body = responseBody.string()
-                    println(body)
+                    println("Esta es la respuesta del servidor: $body")
                     if(body=="Contrasenia incorrecta")
                         //Se manda esa cadena al LoginActivity, para ponerlo en el EditText y que lo lea el usuario
                         CoroutineScope(Dispatchers.Main).launch {
-                            setResponseTextInMainThread(body) //ESTO LO HE CAMBIADOOOOOOOOOO
+                            setResponseTextInMainThread(body)
                         }
 
                     else{ //Si el usuario es nuevo o si ya existía y la contraseña es buena, me viene un token. Lanzo la nueva activity y le meto ese token
                         this@LoginActivityViewModel.token = body
                         println("Este es el token que me ha devuelto el servidor: "+token)
                         println("Lanzo la SeleccionRutaActivity en ESTE punto")
-                        SeleccionRutaActivity.launch(context,token)
+                        SeleccionRutaActivity.launch(context,usuario,token)
                     }
                 }
             }

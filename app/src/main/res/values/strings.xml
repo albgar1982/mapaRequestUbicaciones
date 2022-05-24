@@ -5,4 +5,6 @@
     <string name="next">SIGUIENTE</string>
     <string name="magic_keys">Magic KEYS</string>
     <string name="usuario">Usuario</string>
+    <string name="nombre">Nombre</string>
+    <string name="escoja_una_ruta">ESCOJA UNA RUTA</string>
 </resources>

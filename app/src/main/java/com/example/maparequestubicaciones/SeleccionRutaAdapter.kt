@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.maparequestubicaciones.databinding.ItemRutasBinding
 
-class SeleccionRutaAdapter(var usuario: Usuario) : RecyclerView.Adapter<SeleccionRutaAdapter.TextoViewHolder>(){
+class SeleccionRutaAdapter(var rutas: List<String>,var usuario: String, var token : String) : RecyclerView.Adapter<SeleccionRutaAdapter.TextoViewHolder>(){
 
     class TextoViewHolder(var itemBinding : ItemRutasBinding) : RecyclerView.ViewHolder(itemBinding.root)
 
     override fun getItemCount(): Int {
-        return usuario.listaRutas.size
+        return rutas.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextoViewHolder {
@@ -21,9 +21,14 @@ class SeleccionRutaAdapter(var usuario: Usuario) : RecyclerView.Adapter<Seleccio
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: TextoViewHolder, position: Int) {
-        var cont=0
-        println("He llegado aqui")
-        holder.itemBinding.tvNombreRuta.text=usuario.listaRutas[position].nombre
+        //var cont=0
+        println("Desde el adapter. En la posición hay ${rutas[position]}")
+        holder.itemBinding.tvNombre.text = rutas[position]
+
+        holder.itemBinding.layoutPrincipal.setOnClickListener {
+            MainActivity.launch(holder.itemBinding.root.context, rutas[position],usuario,token)
+        }
+        /*
         usuario.listaRutas[position].listaUbicaciones.forEach {
             if (it.coleccionado)
                 cont++
@@ -35,5 +40,7 @@ class SeleccionRutaAdapter(var usuario: Usuario) : RecyclerView.Adapter<Seleccio
             println("Usuario en adapter\n $usuario")
             MainActivity.launch(holder.itemBinding.root.context, usuario.toString())
         }
+        */
+
     }
 }

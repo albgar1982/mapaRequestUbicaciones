@@ -36,11 +36,15 @@
         </activity>
 
         <activity
+            android:name=".SeleccionRutaActivity"
+            android:exported="true" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true" />
 
         <activity
-            android:name=".SeleccionRutaActivity"
+            android:name=".StreetViewActivity"
             android:exported="true" />
 
         <meta-data

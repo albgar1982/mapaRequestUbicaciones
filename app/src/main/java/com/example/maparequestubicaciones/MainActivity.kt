@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         const val TAG_RUTA = "TAG_RUTA"
         const val REQUEST_CODE_LOCATION = 0
 
-
         fun launch(context: Context, ruta: String, user: String, token: String) {
             val intent = Intent(context, MainActivity::class.java)
             intent.putExtra(TAG_TOKEN, token)
@@ -40,85 +39,45 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var token: String
+    private lateinit var usuario: String
+    private lateinit var ruta: String
+    private var listaUbicaciones = mutableListOf<Ubicacion>()
+    lateinit var map: GoogleMap
+    private val viewModel: MainActivityViewModel by viewModels()
+
     @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
+        // ?.tag = 0 es para contar cuántas veces se ha pulsado la ubicación (se llama a onMarkerClick() automáticamente)
+        listaUbicaciones.forEach {
+            googleMap.addMarker(MarkerOptions().position(LatLng(it.latitud,it.longitud)).title(it.nombreCoordenada))?.tag = 0
+        }
 
-        if(listaUbicaciones != null) {
-            val markerPrimero: Marker? = googleMap.addMarker(
-                MarkerOptions()
-                    .position(
-                        LatLng(
-                            listaUbicaciones!![0].latitud,
-                            listaUbicaciones!![0].longitud
-                        )
-                    )
-                    .title(listaUbicaciones!![0].nombreCoordenada)
-            )
-            markerPrimero?.tag = 0
-
-            val markerSegundo = googleMap.addMarker(
-                MarkerOptions()
-                    .position(
-                        LatLng(
-                            listaUbicaciones!![1].latitud,
-                            listaUbicaciones!![1].longitud
-                        )
-                    )
-                    .title(listaUbicaciones!![1].nombreCoordenada)
-            )
-            markerSegundo?.tag = 0
-
-            val markerTercero = googleMap.addMarker(
-                MarkerOptions()
-                    .position(
-                        LatLng(
-                            listaUbicaciones!![2].latitud,
-                            listaUbicaciones!![2].longitud
-                        )
-                    )
-                    .title(listaUbicaciones!![2].nombreCoordenada)
-            )
-            markerTercero?.tag = 0
-
-            val ultimaCoordenada = listaUbicaciones!![listaUbicaciones!!.size - 1]
-            googleMap.moveCamera(
-                CameraUpdateFactory.newLatLng(
-                    LatLng(
-                        ultimaCoordenada.latitud,
-                        ultimaCoordenada.longitud
-                    )
+        val ultimaCoordenada = listaUbicaciones[listaUbicaciones.size - 1]
+        googleMap.moveCamera(
+            CameraUpdateFactory.newLatLng(
+                LatLng(
+                    ultimaCoordenada.latitud,
+                    ultimaCoordenada.longitud
                 )
             )
-        }
+        )
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(15.0F))
         googleMap.isBuildingsEnabled = true
+
         //Cuando el mapa se cree, vamos a comprobar si están los permisos y a intentar localizar al usuario
         enableLocation()
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        googleMap.isMyLocationEnabled = true
-
         map.setOnMarkerClickListener(this)
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
+
+        StreetViewActivity.launch(this,ruta,usuario,Ubicacion("",marker.position.latitude,marker.position.longitude,"").toString())
+        return false
+        /*
         // Retrieve the data from the marker.
         val clickCount = marker.tag as? Int
 
@@ -137,17 +96,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
         return false
+
+         */
     }
-
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var token: String
-    private lateinit var usuario: String
-    private lateinit var ruta: String
-    private var listaUbicaciones: List<Ubicacion>? = null
-    private var posic = 0
-    lateinit var map: GoogleMap
-    private val viewModel: MainActivityViewModel by viewModels()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,9 +110,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         token = intent.getStringExtra(TAG_TOKEN).toString()
         usuario = intent.getStringExtra(TAG_USER).toString()
 
-
         //Ponemos el nombre del usuario debajo del icono de logros
-        binding.tvNombreUsuario.text = usuario
+        binding.tvNombreUsuario.text = usuario.uppercase()
 
         //Para que aparezca y desaparezca la pista actual
         binding.close.setOnClickListener {
@@ -177,11 +127,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
 
         initObserver()
-        viewModel.hacerLlamadaProgreso(usuario,ruta, token,  this)
-
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.mapa) as SupportMapFragment
-
-        mapFragment.getMapAsync(this)
+        viewModel.hacerLlamadaProgreso(usuario,ruta,token,this)
     }
 
     private fun initObserver() {
@@ -194,15 +140,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         viewModel.responseText.observe(this) {
 
-            println("Estoy en MainActivity. Al observer le llega $it")
             val gson = Gson()
             val rutaYprogreso = gson.fromJson(it, RutaYProgreso::class.java)
-           /* listaUbicaciones = rutaYprogreso.ubicaciones
-            posic = rutaYprogreso.posic
-            val ubicacion= gson.fromJson(listaUbicaciones.toString(), Ubicaciones::class.java)
-            println(ubicacion)*/
-            println("Ruta y prograso $rutaYprogreso")
-            //binding.pista.text= rutaYprogreso.ubicaciones[rutaYprogeso.posic].toString()
+
+            rutaYprogreso.listaUbicaciones.forEach { ubi ->
+                println(ubi)
+                listaUbicaciones += gson.fromJson(ubi.toString(),Ubicacion::class.java)
+            }
+
+            binding.pista.text= rutaYprogreso.listaUbicaciones[rutaYprogreso.pistaActual].pista
+
+            //Una vez que tenemos toda la información de la llamada, colocamos el maps (esto disparará el onMapReady() )
+            val mapFragment = supportFragmentManager.findFragmentById(R.id.mapa) as SupportMapFragment
+
+            mapFragment.getMapAsync(this)
         }
     }
 

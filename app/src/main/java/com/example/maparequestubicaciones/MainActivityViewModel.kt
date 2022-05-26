@@ -34,7 +34,7 @@ class MainActivityViewModel : ViewModel() {
 
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                request.url("https://b87d-139-47-74-123.eu.ngrok.io/getProgress/$usuario/$ruta/$token")
+                request.url("https://b5b5-139-47-74-123.eu.ngrok.io/getProgress/$usuario/$ruta/$token")
 
                 val call = client.newCall(request.build())
                 call.enqueue(object : Callback {
@@ -50,9 +50,9 @@ class MainActivityViewModel : ViewModel() {
                         response.body?.let { responseBody ->
 
                             val body = responseBody.string()
-                            println("Estoy en el body"+body)
+                            println("Estoy en el body: $body")
 
-                            if (body == "caducado")
+                            if (body == "error")
                                 LoginActivity.launch(context)
                             else
                                 CoroutineScope(Dispatchers.Main).launch {

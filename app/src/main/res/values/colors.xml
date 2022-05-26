@@ -9,8 +9,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="red">#ED0D0D</color>
     <color name="green">#1AF603</color>
-    <color name="green_fondo">#8A61BA</color>
+    <color name="green_fondo">#70C4CF</color>
     <color name="fondo_elegant">#FFF4DA</color>
     <color name="boton_elegant">#A0864C</color>
     <color name="letra_elegant">#4D654C</color>
+    <color name="azul_fondo">#FFC4D6D8</color>
 </resources>

@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/drawable/ic_launcher_background.xml" value="0.137" />
         <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/drawable/rounded_corner.xml" value="0.228" />
         <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/layout/activity_main.xml" value="0.2" />
@@ -10,7 +11,7 @@
         <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/layout/activity_pruebaar.xml" value="0.2453125" />
         <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/layout/item_rutas.xml" value="0.2" />
         <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/layout/seleccion_ruta.xml" value="0.1" />
-        <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/layout/street_view_panorama_basic_demo.xml" value="0.23958333333333334" />
+        <entry key="..\:/Users/tosta/AndroidStudioProjects/mapaRequestUbicaciones/app/src/main/res/layout/street_view_panorama_basic_demo.xml" value="0.1776061776061776" />
       </map>
     </option>
   </component>

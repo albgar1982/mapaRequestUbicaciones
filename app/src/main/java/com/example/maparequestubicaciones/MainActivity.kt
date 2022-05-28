@@ -5,6 +5,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -13,16 +17,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.maparequestubicaciones.databinding.ActivityMainBinding
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
+import com.google.maps.android.SphericalUtil
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
+    LocationListener {
 
     companion object {
         const val TAG_TOKEN = "TAG_TOKEN"
@@ -46,6 +50,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private var listaUbicaciones = mutableListOf<Ubicacion>()
     lateinit var map: GoogleMap
     private val viewModel: MainActivityViewModel by viewModels()
+    val loc1 = Location("loca1")
+    val loc2 = Location("loca2")
+    val loc3 = Location("loca3")
+
+    var flag1 = false
+    var flag2 = false
+    var flag3 = false
+
+    var pistaActualInt = 0
 
     @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(googleMap: GoogleMap) {
@@ -53,8 +66,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         // ?.tag = 0 es para contar cuántas veces se ha pulsado la ubicación (se llama a onMarkerClick() automáticamente)
         listaUbicaciones.forEach {
-            googleMap.addMarker(MarkerOptions().position(LatLng(it.latitud,it.longitud)).title(it.nombreCoordenada))?.tag = 0
+            map.addMarker(
+                MarkerOptions().position(LatLng(it.latitud, it.longitud)).title(it.nombreCoordenada)
+            )?.tag = 0
+
+            // Get back the mutable Circle
+            map.addCircle(
+                CircleOptions().center(LatLng(it.latitud, it.longitud)).radius(25.0)
+                    .strokeWidth(10f).strokeColor(Color.GREEN)
+            )
+
         }
+
+        loc1.latitude = listaUbicaciones[0].latitud
+        loc1.longitude = listaUbicaciones[0].longitud
+
+        loc2.latitude = listaUbicaciones[1].latitud
+        loc2.longitude = listaUbicaciones[1].longitud
+
+        loc3.latitude = listaUbicaciones[2].latitud
+        loc3.longitude = listaUbicaciones[2].longitud
 
         val ultimaCoordenada = listaUbicaciones[listaUbicaciones.size - 1]
         googleMap.moveCamera(
@@ -68,14 +99,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(15.0F))
         googleMap.isBuildingsEnabled = true
 
+
+        var distancia = SphericalUtil.computeDistanceBetween(
+            LatLng(listaUbicaciones[0].latitud, listaUbicaciones[0].longitud),
+            LatLng(listaUbicaciones[1].latitud, listaUbicaciones[1].longitud)
+        )
+
+        println("La distancia entre ${listaUbicaciones[0].nombreCoordenada} y ${listaUbicaciones[1].nombreCoordenada} es de $distancia m")
         //Cuando el mapa se cree, vamos a comprobar si están los permisos y a intentar localizar al usuario
         enableLocation()
+        //LocationSource.OnLocationChangedListener()
         map.setOnMarkerClickListener(this)
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
 
-        StreetViewActivity.launch(this,ruta,usuario,Ubicacion("",marker.position.latitude,marker.position.longitude,"").toString())
+       // PruebaARActivity.launch(this)
+        //StreetViewActivity.launch(this,ruta,usuario,Ubicacion("",marker.position.latitude,marker.position.longitude,"").toString())
         return false
         /*
         // Retrieve the data from the marker.
@@ -127,7 +167,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
 
         initObserver()
-        viewModel.hacerLlamadaProgreso(usuario,ruta,token,this)
+        viewModel.hacerLlamadaProgreso(usuario, ruta, token, this)
     }
 
     private fun initObserver() {
@@ -145,13 +185,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
             rutaYprogreso.listaUbicaciones.forEach { ubi ->
                 println(ubi)
-                listaUbicaciones += gson.fromJson(ubi.toString(),Ubicacion::class.java)
+                listaUbicaciones += gson.fromJson(ubi.toString(), Ubicacion::class.java)
             }
 
-            binding.pista.text= rutaYprogreso.listaUbicaciones[rutaYprogreso.pistaActual].pista
-
+            binding.pista.text = rutaYprogreso.listaUbicaciones[rutaYprogreso.pistaActual].pista
+            pistaActualInt = rutaYprogreso.pistaActual
             //Una vez que tenemos toda la información de la llamada, colocamos el maps (esto disparará el onMapReady() )
-            val mapFragment = supportFragmentManager.findFragmentById(R.id.mapa) as SupportMapFragment
+            val mapFragment =
+                supportFragmentManager.findFragmentById(R.id.mapa) as SupportMapFragment
 
             mapFragment.getMapAsync(this)
         }
@@ -171,7 +212,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     @SuppressLint("MissingPermission")
     private fun enableLocation() {
-
         //Si el mapa no está inicializado, sal
         if (!::map.isInitialized)
             return
@@ -221,4 +261,42 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    override fun onLocationChanged(location: Location) {
+        val miLocal = LatLng(location.latitude, location.longitude)
+        flag1 = comprobarDistancia(
+            miLocal,
+            LatLng(listaUbicaciones[0].latitud, listaUbicaciones[0].longitud)
+        )
+        flag2 = comprobarDistancia(
+            miLocal,
+            LatLng(listaUbicaciones[1].latitud, listaUbicaciones[1].longitud)
+        )
+        flag3 = comprobarDistancia(
+            miLocal,
+            LatLng(listaUbicaciones[2].latitud, listaUbicaciones[2].longitud)
+        )
+
+        if (flag1) {
+            if (comprobarPista(listaUbicaciones[0].pista, listaUbicaciones[pistaActualInt].pista))
+                PruebaARActivity.launch(this,ruta,usuario)
+        } else
+            if (flag2) {
+                if (comprobarPista(listaUbicaciones[1].pista, listaUbicaciones[pistaActualInt].pista))
+                    PruebaARActivity.launch(this,ruta,usuario)
+            }else
+                if (flag3)
+                    if (comprobarPista(listaUbicaciones[2].pista, listaUbicaciones[pistaActualInt].pista))
+                        PruebaARActivity.launch(this,ruta,usuario)
+
+    }
+
+    fun comprobarDistancia(localizacionActual: LatLng, ubicacionAComprobar: LatLng): Boolean {
+
+        return (SphericalUtil.computeDistanceBetween(localizacionActual, ubicacionAComprobar) < 6.0)
+
+    }
+
+    fun comprobarPista(pistaAComprobar: String, pistaActual: String): Boolean {
+        return (pistaAComprobar == pistaActual)
+    }
 }

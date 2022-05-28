@@ -289,6 +289,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         binding.pbDownloading.visibility = View.VISIBLE
     }
 
+
     private fun setGone() {
         binding.pbDownloading.visibility = View.GONE
     }

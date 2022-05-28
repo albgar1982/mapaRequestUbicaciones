@@ -34,7 +34,7 @@ class MainActivityViewModel : ViewModel() {
 
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                request.url("https://a650-139-47-74-123.eu.ngrok.io/getProgress/$usuario/$ruta/$token")
+                request.url("https://865b-139-47-74-123.eu.ngrok.io/getProgress/$usuario/$ruta/$token")
 
                 val call = client.newCall(request.build())
                 call.enqueue(object : Callback {
@@ -57,7 +57,7 @@ class MainActivityViewModel : ViewModel() {
                             else
                                 CoroutineScope(Dispatchers.Main).launch {
                                     setIsVisibleInMainThread(false)
-                                    _responseProgress.value=body
+                                    _responseProgress.value = body
                                     setResponseTextInMainThread(body)
                                 }
                         }

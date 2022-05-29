@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
             // Get back the mutable Circle
             map.addCircle(
-                CircleOptions().center(LatLng(it.latitud, it.longitud)).radius(25.0)
+                CircleOptions().center(LatLng(it.latitud, it.longitud)).radius(10.0)
                     .strokeWidth(10f).strokeColor(Color.GREEN)
             )
 
@@ -231,7 +231,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             // for ActivityCompat#requestPermissions for more details.
             return
         }
-        println("COMPROBACION DE PROBVEFOR: ${manager.getLastKnownLocation(LocationManager.FUSED_PROVIDER)}")
+        println("COMPROBACION DE PROBVEFOR: ${manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)}")
         //Recuperamos del intent el valor de la ruta, del usuario y del token:
         ruta = intent.getStringExtra(TAG_RUTA).toString()
         token = intent.getStringExtra(TAG_TOKEN).toString()
@@ -352,7 +352,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     fun comprobarDistancia(localizacionActual: LatLng, ubicacionAComprobar: LatLng): Boolean {
 
-        return (SphericalUtil.computeDistanceBetween(localizacionActual, ubicacionAComprobar) < 26.0)
+        return (SphericalUtil.computeDistanceBetween(localizacionActual, ubicacionAComprobar) < 15.0)
 
     }
 

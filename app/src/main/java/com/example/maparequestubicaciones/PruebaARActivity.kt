@@ -99,10 +99,11 @@ class PruebaARActivity : AppCompatActivity() {
 
             binding.back.visibility= View.VISIBLE
 
+            println("Voy a intentar guardar. yaGuardado está: $yaGuardado")
             if(!yaGuardado) {
-                viewModel.salvarProgreso(usuario, ruta)
+                viewModel.salvarProgreso(usuario, ruta,this)
                 yaGuardado = true
-                MainActivity.launch(this,ruta,usuario,token)
+               // MainActivity.launch(this,ruta,usuario,token)
             }
 
 

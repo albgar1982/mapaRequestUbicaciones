@@ -28,19 +28,6 @@ class SeleccionRutaAdapter(var rutas: List<String>,var usuario: String, var toke
         holder.itemBinding.layoutPrincipal.setOnClickListener {
             MainActivity.launch(holder.itemBinding.root.context, rutas[position],usuario,token)
         }
-        /*
-        usuario.listaRutas[position].listaUbicaciones.forEach {
-            if (it.coleccionado)
-                cont++
-        }
-        holder.itemBinding.llavesColeccionadas.text="${cont}/${usuario.listaRutas[position].listaUbicaciones.size}"
-
-        holder.itemBinding.itemRutasLayout.setOnClickListener {
-            usuario.listaRutas[position].seleccionada=true
-            println("Usuario en adapter\n $usuario")
-            MainActivity.launch(holder.itemBinding.root.context, usuario.toString())
-        }
-        */
 
     }
 }

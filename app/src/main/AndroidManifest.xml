@@ -55,12 +55,6 @@
             tools:ignore="LockedOrientationActivity"
             android:exported="true" />
 
-        <activity
-            android:name=".StreetViewActivity"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity"
-            android:exported="true" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />

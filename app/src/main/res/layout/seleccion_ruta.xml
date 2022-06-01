@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SeleccionRutaActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@mipmap/fondo">
 
     <ProgressBar
         android:id="@+id/pb_downloading"
@@ -16,13 +17,20 @@
         android:layout_marginTop="40dp"
         />
 
-    <TextView
-        android:id="@+id/tv_tittle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/escoja_una_ruta"
-        android:gravity="center"
-        android:textSize="30sp"/>
+
+        <TextView
+            android:id="@+id/tv_tittle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="15dp"
+            android:background="#C3FB67"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="@string/escoja_una_ruta"
+            android:textColor="@color/black"
+            android:textSize="30sp"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"

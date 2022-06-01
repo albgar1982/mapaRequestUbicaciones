@@ -43,6 +43,7 @@ class PruebaARActivity : AppCompatActivity() {
     }
 
     private lateinit var arFragment: ArFragment
+    //Papá Noel https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf
     private val modelLink = "https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf"
     private lateinit var renderable: ModelRenderable
     private lateinit var binding: ActivityPruebaarBinding
@@ -96,19 +97,13 @@ class PruebaARActivity : AppCompatActivity() {
             node.renderable = renderable
             node.select()
 
-
             binding.back.visibility= View.VISIBLE
 
-            println("Voy a intentar guardar. yaGuardado está: $yaGuardado")
             if(!yaGuardado) {
                 viewModel.salvarProgreso(usuario, ruta,this)
                 yaGuardado = true
-               // MainActivity.launch(this,ruta,usuario,token)
             }
-
-
             println("Está guardado = $yaGuardado")
-
         }
 
         binding.back.setOnClickListener {

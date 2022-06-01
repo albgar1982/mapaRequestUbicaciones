@@ -2,6 +2,9 @@ package com.example.maparequestubicaciones
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,28 +15,29 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.example.maparequestubicaciones.databinding.ActivityMainBinding
 import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import com.google.maps.android.SphericalUtil
 import kotlinx.coroutines.*
-import java.security.Provider
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val TAG_TOKEN = "TAG_TOKEN"
         const val TAG_USER = "TAG_USER"
         const val TAG_RUTA = "TAG_RUTA"
         const val REQUEST_CODE_LOCATION = 0
+        const val CANAL_ID = "mi canal"
+        const val NOTIFICACION_ID = 1
 
         fun launch(context: Context, ruta: String, user: String, token: String) {
             val intent = Intent(context, MainActivity::class.java)
@@ -51,23 +55,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private var listaUbicaciones = mutableListOf<Ubicacion>()
     lateinit var map: GoogleMap
     private val viewModel: MainActivityViewModel by viewModels()
-    private  lateinit var manager: LocationManager
-
-    val loc1 = Location("loca1")
-    val loc2 = Location("loca2")
-    val loc3 = Location("loca3")
-
+    private lateinit var manejadorLoc: LocationManager
     var flag1 = false
     var flag2 = false
     var flag3 = false
-
-    lateinit var localizacionActual:LatLng
-
+    var localizacionActual: LatLng? = null
     var pistaActualInt = 0
 
-    @SuppressLint("PotentialBehaviorOverride")
+    @SuppressLint("PotentialBehaviorOverride", "MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
+        //Cuando el mapa se cree, vamos a comprobar si están los permisos y a intentar localizar al usuario
+        enableLocation()
 
         // ?.tag = 0 es para contar cuántas veces se ha pulsado la ubicación (se llama a onMarkerClick() automáticamente)
         listaUbicaciones.forEach {
@@ -83,155 +83,50 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         }
 
-        loc1.latitude = listaUbicaciones[0].latitud
-        loc1.longitude = listaUbicaciones[0].longitud
-
-        loc2.latitude = listaUbicaciones[1].latitud
-        loc2.longitude = listaUbicaciones[1].longitud
-
-        loc3.latitude = listaUbicaciones[2].latitud
-        loc3.longitude = listaUbicaciones[2].longitud
+        map.isBuildingsEnabled = true
 
         val ultimaCoordenada = listaUbicaciones[listaUbicaciones.size - 1]
-        googleMap.moveCamera(
-            CameraUpdateFactory.newLatLng(
-                LatLng(
-                    ultimaCoordenada.latitud,
-                    ultimaCoordenada.longitud
-                )
-            )
-        )
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15.0F))
-        googleMap.isBuildingsEnabled = true
 
-
-        var distancia = SphericalUtil.computeDistanceBetween(
-            LatLng(listaUbicaciones[0].latitud, listaUbicaciones[0].longitud),
-            LatLng(listaUbicaciones[1].latitud, listaUbicaciones[1].longitud)
-        )
-
-        println("La distancia entre ${listaUbicaciones[0].nombreCoordenada} y ${listaUbicaciones[1].nombreCoordenada} es de $distancia m")
-        //Cuando el mapa se cree, vamos a comprobar si están los permisos y a intentar localizar al usuario
-        enableLocation()
-        //LocationSource.OnLocationChangedListener()
-        map.setOnMarkerClickListener(this)
+        val cameraPosition = CameraPosition.Builder()
+            .target(LatLng(
+                ultimaCoordenada.latitud,
+                ultimaCoordenada.longitud
+            )) // Sets the center of the map to ultimaCoordenada
+            //.bearing(90f)         // Sets the orientation of the camera to east
+            .zoom(17f)
+            .tilt(60f)            // Sets the tilt of the camera to 30 degrees
+            .build()              // Creates a CameraPosition from the builder
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
-    override fun onMarkerClick(marker: Marker): Boolean {
-
-       // PruebaARActivity.launch(this)
-        //StreetViewActivity.launch(this,ruta,usuario,Ubicacion("",marker.position.latitude,marker.position.longitude,"").toString())
-        return false
-        /*
-        // Retrieve the data from the marker.
-        val clickCount = marker.tag as? Int
-
-        // Check if a click count was set, then display the click count.
-        clickCount?.let {
-            val newClickCount = it + 1
-            marker.tag = newClickCount
-            Toast.makeText(
-                this,
-                "${marker.title} has been clicked $newClickCount times.",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        // Return false to indicate that we have not consumed the event and that we wish
-        // for the default behavior to occur (which is for the camera to move such that the
-        // marker is centered and for the marker's info window to open, if it has one).
-        return false
-
-         */
-    }
-
-
-    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission", "SetTextI18n")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        manager=getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+        var notificado = false
 
-            GlobalScope.launch {
-                while (true){
+        manejadorLoc = getSystemService(LOCATION_SERVICE) as LocationManager
 
-                    delay(3000)
-                    requestLocationPermission()
-                   if ( isLocationPermissionGranted())
-                     localizacionActual= manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.let { LatLng(it.latitude,(manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.longitude))}!!
-                     println("LOCALIZACIÓN ACTUAL:   $localizacionActual")
-                    flag1 = comprobarDistancia(
-                        localizacionActual,
-                        LatLng(listaUbicaciones[0].latitud, listaUbicaciones[0].longitud)
-                    )
-                    flag2 = comprobarDistancia(
-                        localizacionActual,
-                        LatLng(listaUbicaciones[1].latitud, listaUbicaciones[1].longitud)
-                    )
-                    flag3 = comprobarDistancia(
-                        localizacionActual,
-                        LatLng(listaUbicaciones[2].latitud, listaUbicaciones[2].longitud)
-                    )
-
-                    if (flag1) {
-                        if (comprobarPista(listaUbicaciones[0].pista, listaUbicaciones[pistaActualInt].pista)) {
-                            PruebaARActivity.launch(this@MainActivity, ruta, usuario,token)
-                            return@launch
-                        }else{
-                            CoroutineScope(Dispatchers.Main).launch {
-                                binding.pista.text = "Vete a otra puta ubicación gracias por tu dineros sucio de mierda flag 1"
-                                println("LANZAR NOTIFICACIÓN")
-                            }
-                        }
-                    } else
-                        if (flag2) {
-                            if (comprobarPista(listaUbicaciones[1].pista, listaUbicaciones[pistaActualInt].pista)) {
-                                PruebaARActivity.launch(this@MainActivity, ruta, usuario,token)
-                                return@launch
-                            }else{
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    binding.pista.text =
-                                        "Vete a otra puta ubicación gracias por tu dineros sucio de mierda flag2"
-                                    println("LANZAR NOTIFICACIÓN")
-                                }
-                            }
-                        }else
-                            if (flag3)
-                                if (comprobarPista(listaUbicaciones[2].pista, listaUbicaciones[pistaActualInt].pista)) {
-                                    PruebaARActivity.launch(this@MainActivity, ruta, usuario,token)
-                                    return@launch
-                                }else{
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        binding.pista.text =
-                                            "Vete a otra puta ubicación gracias por tu dineros sucio de mierda flag3"
-                                        println("LANZAR NOTIFICACIÓN")
-                                    }
-                                }
-                    println("FLAGS $flag1 , $flag2 , $flag3")
-                }
+        enableLocation()
+        conseguirLatLng()
+        //Creo un manejador de notificaciones
+        val notifMananager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        //Si la versión es igual o superior a Oreo...
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //Creo un canal de notificaciones con un Id, nombre y nivel de importancia (hay varias constantes que hacen que )
+            val canalNotif = NotificationChannel(
+                CANAL_ID,
+                "Mis notificationes",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            canalNotif.description = "Descripción del canal"
+            notifMananager.createNotificationChannel(canalNotif)
         }
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        println("COMPROBACION DE PROBVEFOR: ${manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)}")
+
+
+
         //Recuperamos del intent el valor de la ruta, del usuario y del token:
         ruta = intent.getStringExtra(TAG_RUTA).toString()
         token = intent.getStringExtra(TAG_TOKEN).toString()
@@ -253,9 +148,121 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 binding.close.setImageResource(R.mipmap.cancel)
         }
 
+
         initObserver()
         viewModel.hacerLlamadaProgreso(usuario, ruta, token, this)
+
+
+        GlobalScope.launch {
+            while (true) {
+                delay(3000)
+                //Intentamos conseguir una localizacionActual:
+                conseguirLatLng()
+                println("LOCALIZACION ACTUAL: $localizacionActual")
+                println("Se ha notificado?: $notificado")
+
+                if (localizacionActual != null) {
+                    //Comprobamos si el usuario está en el entorno de alguna de las ubicaciones de la ruta
+                    flag1 =
+                        comprobarDistancia(
+                            localizacionActual!!,
+                            LatLng(listaUbicaciones[0].latitud, listaUbicaciones[0].longitud)
+                        )
+
+                    flag2 = comprobarDistancia(
+                        localizacionActual!!,
+                        LatLng(listaUbicaciones[1].latitud, listaUbicaciones[1].longitud)
+                    )
+                    flag3 = comprobarDistancia(
+                        localizacionActual!!,
+                        LatLng(listaUbicaciones[2].latitud, listaUbicaciones[2].longitud)
+                    )
+                }
+
+                //Si está cerca de alguna ubicación...
+                if (flag1) {
+                    //...comprobamos si es la buena, viendo si coinciden las pistas.
+                    if (comprobarPista(
+                            listaUbicaciones[0].pista,
+                            listaUbicaciones[pistaActualInt].pista
+                        )
+                    ) {
+                        //Si es así, lanzamos la actividad de AR, para colocar la bandera
+                        PruebaARActivity.launch(this@MainActivity, ruta, usuario, token)
+                        return@launch
+                    } else {
+                        //Si no, lanzamos la notificación avisando de que ha ido al lugar erróneo:
+                        if(!notificado) {
+                            notificado=true
+                            CoroutineScope(Dispatchers.Main).launch {
+                                notificar(notifMananager)
+                            }
+                        }
+                    }
+                } else
+                    if (flag2) {
+                        if (comprobarPista(
+                                listaUbicaciones[1].pista,
+                                listaUbicaciones[pistaActualInt].pista
+                            )
+                        ) {
+                            PruebaARActivity.launch(this@MainActivity, ruta, usuario, token)
+                            return@launch
+                        } else {
+                            if(!notificado) {
+                                notificado=true
+                                CoroutineScope(Dispatchers.Main).launch {
+
+                                    notificar(notifMananager)
+
+                                }
+                            }
+                        }
+                    } else
+                        if (flag3)
+                            if (comprobarPista(
+                                    listaUbicaciones[2].pista,
+                                    listaUbicaciones[pistaActualInt].pista
+                                )
+                            ) {
+                                PruebaARActivity.launch(this@MainActivity, ruta, usuario, token)
+                                return@launch
+                            } else {
+                                if(!notificado) {
+                                    notificado=true
+                                    CoroutineScope(Dispatchers.Main).launch {
+
+                                        notificar(notifMananager)
+
+                                    }
+                                }
+                            }
+                //En cualquier momento, si el usuario deja de estar en el entorno de cualquier ubicación, ponemos el flag de notificaciones
+                //como false, para que al volver a entrar en uno de esos entornos, se le pueda lanzar una notificación
+                if (!flag1 && !flag2 && !flag3)
+                    notificado=false
+                println("FLAGS $flag1 , $flag2 , $flag3")
+            }
+        }
+
+        println("LOCALIZACIÓN ACTUAL:   $localizacionActual")
+
     }
+
+     @SuppressLint("RestrictedApi")
+     fun notificar(notifMananager:NotificationManager){
+        val notificacion =
+            NotificationCompat.Builder(this@MainActivity, CANAL_ID)
+                .setSmallIcon(R.mipmap.notificacion)
+                .setContentTitle("UBICACIÓN ERRÓNEA")
+                .setContentText("Desplázate a otra ubicación, ésa no es la correcta.")
+                .setDefaults(Notification.DEFAULT_VIBRATE)
+        notifMananager.notify(NOTIFICACION_ID, notificacion.build())
+
+        if(notificacion.whenIfShowing  ==0L   )
+            notifMananager.cancel(NOTIFICACION_ID)
+    }
+
 
     private fun initObserver() {
         viewModel.isVisible.observe(this) { isVisible ->
@@ -292,6 +299,41 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private fun setGone() {
         binding.pbDownloading.visibility = View.GONE
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun conseguirLatLng() {
+        if (isLocationPermissionGranted()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && manejadorLoc.isProviderEnabled(
+                    LocationManager.FUSED_PROVIDER
+                )
+            ) {
+                val localizacion = manejadorLoc.getLastKnownLocation(LocationManager.FUSED_PROVIDER)
+                localizacion?.let {
+                    localizacionActual = LatLng(it.latitude, it.longitude)
+                    println("LatLng conseguida por FUSED: $localizacionActual")
+                }
+            } else {
+                if (manejadorLoc.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    val localizacion =
+                        manejadorLoc.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    localizacion?.let {
+                        localizacionActual = LatLng(it.latitude, it.longitude)
+                        println("LatLng conseguida por GPS: $localizacionActual")
+                    }
+                } else
+                    if (manejadorLoc.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                        val localizacion =
+                            manejadorLoc.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                        localizacion?.let {
+                            localizacionActual = LatLng(it.latitude, it.longitude)
+                            println("LatLng conseguida por NETWORK: $localizacionActual")
+                        }
+                    } else
+                        println("No va ni el GPS ni el NETWORK cago en DIOS")
+
+            }
+        }
     }
 
     private fun isLocationPermissionGranted() = ContextCompat.checkSelfPermission(
@@ -352,12 +394,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     fun comprobarDistancia(localizacionActual: LatLng, ubicacionAComprobar: LatLng): Boolean {
 
-        return (SphericalUtil.computeDistanceBetween(localizacionActual, ubicacionAComprobar) < 15.0)
+        return (SphericalUtil.computeDistanceBetween(
+            localizacionActual,
+            ubicacionAComprobar
+        ) < 15.0)
 
     }
 
     fun comprobarPista(pistaAComprobar: String, pistaActual: String): Boolean {
         return (pistaAComprobar == pistaActual)
+    }
+
+    override fun getApplicationContext(): Context {
+        return this
     }
 
 

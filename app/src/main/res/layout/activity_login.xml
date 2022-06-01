@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="cursive"
         android:gravity="center_horizontal"
-        android:text="@string/magic_keys"
+        android:text="@string/title"
         android:textColor="@color/boton_elegant"
         android:textSize="38sp" />
 

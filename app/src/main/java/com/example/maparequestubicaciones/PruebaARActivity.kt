@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.AssetManager
+import android.content.res.Resources
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
@@ -20,11 +22,19 @@ import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.assets.RenderableSource
+import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import com.google.maps.android.SphericalUtil
 import kotlinx.coroutines.*
+import kotlinx.serialization.BinaryFormat
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.nio.channels.ReadableByteChannel
+
+//import com.google.android.filament.utils.*
+
 
 class PruebaARActivity : AppCompatActivity() {
 
@@ -32,6 +42,12 @@ class PruebaARActivity : AppCompatActivity() {
         const val TAG_TOKEN = "TAG_TOKEN"
         const val TAG_USER = "TAG_USER"
         const val TAG_RUTA = "TAG_RUTA"
+/*
+        init {
+            Utils.init()
+        }
+
+ */
 
         fun launch(context: Context, ruta: String, user: String, token: String) {
             val intent = Intent(context, PruebaARActivity::class.java)
@@ -43,9 +59,11 @@ class PruebaARActivity : AppCompatActivity() {
     }
 
     private lateinit var arFragment: ArFragment
-    //Papá Noel https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf
-    private val modelLink = "https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf"
-    private lateinit var renderable: ModelRenderable
+
+    //Papá Noel
+    // private val modelLink = https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf
+    private val modelLink = "https://githubraw.com/albgar1982/Modelos3d/main/scene.gltf"
+    private var renderable: ModelRenderable? = null
     private lateinit var binding: ActivityPruebaarBinding
     private var usuario = ""
     private var ruta = ""
@@ -57,6 +75,7 @@ class PruebaARActivity : AppCompatActivity() {
         binding = ActivityPruebaarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         usuario = intent.getStringExtra(TAG_USER).toString()
         ruta = intent.getStringExtra(TAG_RUTA).toString()
         token = intent.getStringExtra(TAG_TOKEN).toString()
@@ -67,49 +86,60 @@ class PruebaARActivity : AppCompatActivity() {
             arFragment.onUpdate(frameTime)
         }
 
+        println("He llegado aqui 1")
+
+
         // Build renderable from the link
         ModelRenderable.builder()
-            .setSource(this, RenderableSource.builder().setSource(
-                this,
-                Uri.parse(modelLink),
-                RenderableSource.SourceType.GLTF2).build())
+            .setSource(
+                this, RenderableSource.builder().setSource(
+                    this,
+                    Uri.parse(modelLink),
+                    RenderableSource.SourceType.GLTF2
+                ).build()
+            )
             .setRegistryId(modelLink)
             .build()
-            .thenAccept { renderable = it }
+            .thenAccept { modelRenderable ->
+                renderable = modelRenderable
+                Toast.makeText(this,"Descarga completa.",Toast.LENGTH_LONG).show()
+            }
             .exceptionally {
-
+                Toast.makeText(this,"Descarga FALLIDA, compruebe su red.",Toast.LENGTH_LONG).show()
                 return@exceptionally null
             }
 
 
-        var yaGuardado=false
+        var yaGuardado = false
         arFragment.setOnTapArPlaneListener { hitResult: HitResult, plane: Plane, motionEvent: MotionEvent ->
-
+            if (renderable == null)
+                return@setOnTapArPlaneListener
 
             // Create the Anchor.
             val anchor = hitResult.createAnchor()
             val anchorNode = AnchorNode(anchor)
             anchorNode.setParent(arFragment.arSceneView.scene)
 
+
             // Create a transformable node and add it to the anchor.
             val node = TransformableNode(arFragment.transformationSystem)
-            node.setParent(anchorNode)
             node.renderable = renderable
+            node.scaleController.minScale = 0.14f
+            node.scaleController.maxScale = 0.15f
+            node.worldScale = Vector3(0.5f,0.5f,0.5f)
+            node.setParent(anchorNode)
             node.select()
 
-            binding.back.visibility= View.VISIBLE
-
-            if(!yaGuardado) {
-                viewModel.salvarProgreso(usuario, ruta,this)
+            if (!yaGuardado) {
+                viewModel.salvarProgreso(usuario, ruta, this)
                 yaGuardado = true
+                binding.back.visibility = View.VISIBLE
             }
             println("Está guardado = $yaGuardado")
         }
 
         binding.back.setOnClickListener {
-            MainActivity.launch(this,ruta,usuario,token)
+            MainActivity.launch(this, ruta, usuario, token)
         }
-
     }
-
 }

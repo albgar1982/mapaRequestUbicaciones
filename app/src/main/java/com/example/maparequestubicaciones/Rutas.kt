@@ -14,7 +14,7 @@ data class Rutas(val lista:List<String>):Parcelable{
 }
 
 @Parcelize
-data class RutaYProgreso(val nombre:String, val listaUbicaciones: List<Ubicacion>,val pistaActual:Int):Parcelable{
+data class RutaYProgreso(val nombre:String, val listaUbicaciones: List<Ubicacion>,val pistaActual:Int,var llaves:Int,var rutas:Int):Parcelable{
     override fun toString(): String {
         val gson = Gson()
         return gson.toJson(this)

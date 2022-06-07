@@ -148,6 +148,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 binding.close.setImageResource(R.mipmap.cancel)
         }
 
+        binding.logro.setOnClickListener {
+            if (binding.layLogros.visibility == View.VISIBLE)
+                binding.layLogros.visibility = View.GONE
+            else
+                binding.layLogros.visibility = View.VISIBLE
+        }
 
         initObserver()
         viewModel.hacerLlamadaProgreso(usuario, ruta, token, this)
@@ -283,6 +289,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             binding.pista.text = rutaYprogreso.listaUbicaciones[rutaYprogreso.pistaActual].pista
+            binding.cantExplosion.text = rutaYprogreso.llaves.toString()
+            binding.cantRutas.text = rutaYprogreso.rutas.toString()
+
             pistaActualInt = rutaYprogreso.pistaActual
             //Una vez que tenemos toda la información de la llamada, colocamos el maps (esto disparará el onMapReady() )
             val mapFragment =

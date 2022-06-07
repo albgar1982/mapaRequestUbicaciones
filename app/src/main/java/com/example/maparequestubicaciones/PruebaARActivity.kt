@@ -1,12 +1,7 @@
 package com.example.maparequestubicaciones
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.res.AssetManager
-import android.content.res.Resources
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
@@ -14,10 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.maparequestubicaciones.databinding.ActivityPruebaarBinding
-import com.google.android.gms.maps.model.LatLng
 import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
@@ -26,14 +18,7 @@ import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
-import com.google.maps.android.SphericalUtil
-import kotlinx.coroutines.*
-import kotlinx.serialization.BinaryFormat
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
-import java.nio.channels.ReadableByteChannel
-
-//import com.google.android.filament.utils.*
+import kotlin.random.Random
 
 
 class PruebaARActivity : AppCompatActivity() {
@@ -42,12 +27,6 @@ class PruebaARActivity : AppCompatActivity() {
         const val TAG_TOKEN = "TAG_TOKEN"
         const val TAG_USER = "TAG_USER"
         const val TAG_RUTA = "TAG_RUTA"
-/*
-        init {
-            Utils.init()
-        }
-
- */
 
         fun launch(context: Context, ruta: String, user: String, token: String) {
             val intent = Intent(context, PruebaARActivity::class.java)
@@ -62,13 +41,26 @@ class PruebaARActivity : AppCompatActivity() {
 
     //Papá Noel
     // private val modelLink = https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf
-    private val modelLink = "https://githubraw.com/albgar1982/Modelos3d/main/scene.gltf"
+    //Regalo
+    //https://githubraw.com/albgar1982/regalo/main/scene.gltf
+    //Regalo 2
+    //https://githubraw.com/albgar1982/regalo1/main/scene.gltf
+    //Casa de jengibre
+    //https://githubraw.com/albgar1982/ginger/main/scene.gltf
+    //Christmas
+    //https://githubraw.com/albgar1982/christmas/main/scene.gltf
+    //Christmas2
+    //https://githubraw.com/albgar1982/christmas2/main/scene.gltf
     private var renderable: ModelRenderable? = null
     private lateinit var binding: ActivityPruebaarBinding
     private var usuario = ""
     private var ruta = ""
     private var token = ""
     private val viewModel: PruebaARViewModel by viewModels()
+    private val array = listOf("https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf","https://githubraw.com/albgar1982/regalo/main/scene.gltf","https://githubraw.com/albgar1982/regalo1/main/scene.gltf"
+    ,"https://githubraw.com/albgar1982/christmas/main/scene.gltf","https://githubraw.com/albgar1982/christmas2/main/scene.gltf","https://githubraw.com/albgar1982/ginger/main/scene.gltf")
+    private val aleat = Random.nextInt(array.size)
+    private val objeto = array[aleat]
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,11 +86,11 @@ class PruebaARActivity : AppCompatActivity() {
             .setSource(
                 this, RenderableSource.builder().setSource(
                     this,
-                    Uri.parse(modelLink),
+                    Uri.parse(objeto),
                     RenderableSource.SourceType.GLTF2
                 ).build()
             )
-            .setRegistryId(modelLink)
+            .setRegistryId(objeto)
             .build()
             .thenAccept { modelRenderable ->
                 renderable = modelRenderable
@@ -124,21 +116,28 @@ class PruebaARActivity : AppCompatActivity() {
             // Create a transformable node and add it to the anchor.
             val node = TransformableNode(arFragment.transformationSystem)
             node.renderable = renderable
-            node.scaleController.minScale = 0.14f
-            node.scaleController.maxScale = 0.15f
-            node.worldScale = Vector3(0.5f,0.5f,0.5f)
+            if(aleat == 1 || aleat == 2){
+                node.scaleController.minScale = 0.25f
+                node.scaleController.maxScale = 0.26f
+            }
+            else{
+                node.scaleController.minScale = 0.30f
+                node.scaleController.maxScale = 0.31f
+            }
+
+            node.worldScale = Vector3(0.4f,0.4f,0.4f)
             node.setParent(anchorNode)
             node.select()
 
             if (!yaGuardado) {
                 viewModel.salvarProgreso(usuario, ruta, this)
                 yaGuardado = true
-                binding.back.visibility = View.VISIBLE
+                binding.laySigui.visibility = View.VISIBLE
             }
             println("Está guardado = $yaGuardado")
         }
 
-        binding.back.setOnClickListener {
+        binding.laySigui.setOnClickListener {
             MainActivity.launch(this, ruta, usuario, token)
         }
     }

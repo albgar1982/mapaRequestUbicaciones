@@ -27,10 +27,8 @@ tools:context=".MainActivity">
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
         tools:ignore="FragmentTagUsage" />
 
     <TextView
@@ -70,14 +68,72 @@ tools:context=".MainActivity">
         app:layout_constraintBottom_toTopOf="@id/pista"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/lay_logros"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_nombreUsuario">
+
+        <ImageView
+            android:id="@+id/bombas"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/fondo_recycler"
+            android:src="@mipmap/dynamite"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+
+            />
+
+        <ImageView
+            android:id="@+id/objetivos"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/fondo_recycler"
+            android:src="@mipmap/explosion"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cant_explosion" />
+
+        <TextView
+            android:id="@+id/cant_explosion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="0"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="@id/bombas"
+            app:layout_constraintStart_toStartOf="@id/bombas"
+            app:layout_constraintTop_toBottomOf="@id/bombas"
+
+            />
+
+        <TextView
+            android:id="@+id/cant_rutas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="0"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="@id/objetivos"
+            app:layout_constraintStart_toStartOf="@id/objetivos"
+            app:layout_constraintTop_toBottomOf="@id/objetivos" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ImageView
         android:id="@+id/logro"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
         android:layout_margin="10dp"
-        android:src="@mipmap/logro"
-        android:outlineAmbientShadowColor="@color/black"
+        android:src="@mipmap/terrorist1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

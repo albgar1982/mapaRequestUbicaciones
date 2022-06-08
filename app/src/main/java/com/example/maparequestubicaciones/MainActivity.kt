@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 CircleOptions().center(LatLng(it.latitud, it.longitud)).radius(10.0)
                     .strokeWidth(10f).strokeColor(Color.GREEN)
             )
-
         }
 
         map.isBuildingsEnabled = true
@@ -193,8 +192,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             listaUbicaciones[pistaActualInt].pista
                         )
                     ) {
-                        //Si es así, lanzamos la actividad de AR, para colocar la bandera
-                        PruebaARActivity.launch(this@MainActivity, ruta, usuario, token)
+                        //Si es así, lanzamos la actividad de AR, para colocar el regalo
+                        ARActivity.launch(this@MainActivity, ruta, usuario, token,pistaActualInt)
                         return@launch
                     } else {
                         //Si no, lanzamos la notificación avisando de que ha ido al lugar erróneo:
@@ -212,7 +211,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                                 listaUbicaciones[pistaActualInt].pista
                             )
                         ) {
-                            PruebaARActivity.launch(this@MainActivity, ruta, usuario, token)
+                            ARActivity.launch(this@MainActivity, ruta, usuario, token,pistaActualInt)
                             return@launch
                         } else {
                             if(!notificado) {
@@ -231,7 +230,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                                     listaUbicaciones[pistaActualInt].pista
                                 )
                             ) {
-                                PruebaARActivity.launch(this@MainActivity, ruta, usuario, token)
+                                ARActivity.launch(this@MainActivity, ruta, usuario, token,pistaActualInt)
                                 return@launch
                             } else {
                                 if(!notificado) {
@@ -259,7 +258,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
      fun notificar(notifMananager:NotificationManager){
         val notificacion =
             NotificationCompat.Builder(this@MainActivity, CANAL_ID)
-                .setSmallIcon(R.mipmap.notificacion)
+                .setSmallIcon(R.mipmap.elf)
                 .setContentTitle("UBICACIÓN ERRÓNEA")
                 .setContentText("Desplázate a otra ubicación, ésa no es la correcta.")
                 .setDefaults(Notification.DEFAULT_VIBRATE)
@@ -289,7 +288,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             binding.pista.text = rutaYprogreso.listaUbicaciones[rutaYprogreso.pistaActual].pista
-            binding.cantExplosion.text = rutaYprogreso.llaves.toString()
+            binding.cantRegalos.text = rutaYprogreso.llaves.toString()
             binding.cantRutas.text = rutaYprogreso.rutas.toString()
 
             pistaActualInt = rutaYprogreso.pistaActual

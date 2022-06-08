@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.*
 import java.io.IOException
 
-class PruebaARViewModel : ViewModel() {
+class ARViewModel : ViewModel() {
 
     fun salvarProgreso(usuario: String, ruta: String,context: Context) {
         println("Estoy en el PruebaARViewModel. Voy a hacer la llamada")
@@ -20,7 +20,7 @@ class PruebaARViewModel : ViewModel() {
 
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                request.url("https://4a9c-139-47-74-123.eu.ngrok.io/salvarProgreso/$usuario/$ruta")
+                request.url("https://1f77-139-47-74-123.eu.ngrok.io/salvarProgreso/$usuario/$ruta")
 
                 val call = client.newCall(request.build())
                 call.enqueue(object : Callback {
@@ -40,7 +40,7 @@ class PruebaARViewModel : ViewModel() {
                             if (body.contains("tokenParaSeleccion")) {
                                 val gson = Gson()
                                 val token=gson.fromJson(body,Token::class.java)
-                                SeleccionRutaActivity.launch(context,usuario,token.tokenParaSeleccion)
+                                VideoActivity.launch(context,usuario,token.tokenParaSeleccion)
                             }
 
                         }

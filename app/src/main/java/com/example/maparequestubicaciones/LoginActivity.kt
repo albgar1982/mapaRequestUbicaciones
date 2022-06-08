@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.core.widget.doOnTextChanged
 import com.example.maparequestubicaciones.databinding.ActivityLoginBinding
@@ -40,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
                     algoDistinto = true
             }
             text?.let {
-                usuarioOk = (it.length >= 3 && !algoDistinto)
+                usuarioOk = (it.length in 3..8 && !algoDistinto)
             }
             if (!usuarioOk)
                 binding.tilUsuario.error = "Usuario no válido"
@@ -90,6 +91,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun initObserver(){
         loginViewModel.falloPassword.observe(this){
+            binding.tvContra.visibility = View.VISIBLE
             binding.tvContra.text=it
         }
     }

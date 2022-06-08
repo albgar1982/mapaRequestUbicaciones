@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.maparequestubicaciones.databinding.ActivityPruebaarBinding
 import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
@@ -18,21 +17,26 @@ import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
+import com.example.maparequestubicaciones.databinding.ActivityPruebaarBinding
 import kotlin.random.Random
 
 
-class PruebaARActivity : AppCompatActivity() {
+class ARActivity : AppCompatActivity() {
 
     companion object {
         const val TAG_TOKEN = "TAG_TOKEN"
         const val TAG_USER = "TAG_USER"
         const val TAG_RUTA = "TAG_RUTA"
+        const val TAG_LLAVE = "TAG_LLAVE"
 
-        fun launch(context: Context, ruta: String, user: String, token: String) {
-            val intent = Intent(context, PruebaARActivity::class.java)
+
+        fun launch(context: Context, ruta: String, user: String, token: String,llave:Int) {
+            val intent = Intent(context, ARActivity::class.java)
             intent.putExtra(TAG_TOKEN, token)
             intent.putExtra(TAG_USER, user)
             intent.putExtra(TAG_RUTA, ruta)
+            intent.putExtra(TAG_LLAVE, llave)
+
             context.startActivity(intent)
         }
     }
@@ -56,11 +60,12 @@ class PruebaARActivity : AppCompatActivity() {
     private var usuario = ""
     private var ruta = ""
     private var token = ""
-    private val viewModel: PruebaARViewModel by viewModels()
-    private val array = listOf("https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf","https://githubraw.com/albgar1982/regalo/main/scene.gltf","https://githubraw.com/albgar1982/regalo1/main/scene.gltf"
+    private var llave=0
+    private val viewModel: ARViewModel by viewModels()
+    private val objetos3d = listOf("https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf","https://githubraw.com/albgar1982/regalo/main/scene.gltf","https://githubraw.com/albgar1982/regalo1/main/scene.gltf"
     ,"https://githubraw.com/albgar1982/christmas/main/scene.gltf","https://githubraw.com/albgar1982/christmas2/main/scene.gltf","https://githubraw.com/albgar1982/ginger/main/scene.gltf")
-    private val aleat = Random.nextInt(array.size)
-    private val objeto = array[aleat]
+    private val aleat = Random.nextInt(objetos3d.size)
+    private val objeto = objetos3d[aleat]
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,15 +76,13 @@ class PruebaARActivity : AppCompatActivity() {
         usuario = intent.getStringExtra(TAG_USER).toString()
         ruta = intent.getStringExtra(TAG_RUTA).toString()
         token = intent.getStringExtra(TAG_TOKEN).toString()
+        llave = intent.getIntExtra(TAG_LLAVE,0)
 
         arFragment = supportFragmentManager.findFragmentById(R.id.arFragment) as ArFragment
 
         arFragment.arSceneView.scene.addOnUpdateListener { frameTime ->
             arFragment.onUpdate(frameTime)
         }
-
-        println("He llegado aqui 1")
-
 
         // Build renderable from the link
         ModelRenderable.builder()
@@ -94,7 +97,7 @@ class PruebaARActivity : AppCompatActivity() {
             .build()
             .thenAccept { modelRenderable ->
                 renderable = modelRenderable
-                Toast.makeText(this,"Descarga completa.",Toast.LENGTH_LONG).show()
+                Toast.makeText(this,"Puede colocar el regalo.",Toast.LENGTH_LONG).show()
             }
             .exceptionally {
                 Toast.makeText(this,"Descarga FALLIDA, compruebe su red.",Toast.LENGTH_LONG).show()
@@ -117,12 +120,12 @@ class PruebaARActivity : AppCompatActivity() {
             val node = TransformableNode(arFragment.transformationSystem)
             node.renderable = renderable
             if(aleat == 1 || aleat == 2){
-                node.scaleController.minScale = 0.25f
-                node.scaleController.maxScale = 0.26f
+                node.scaleController.minScale = 0.22f
+                node.scaleController.maxScale = 0.23f
             }
             else{
-                node.scaleController.minScale = 0.30f
-                node.scaleController.maxScale = 0.31f
+                node.scaleController.minScale = 0.27f
+                node.scaleController.maxScale = 0.28f
             }
 
             node.worldScale = Vector3(0.4f,0.4f,0.4f)

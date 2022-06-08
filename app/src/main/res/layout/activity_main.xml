@@ -74,17 +74,16 @@ tools:context=".MainActivity">
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:padding="5dp"
-        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_nombreUsuario">
 
         <ImageView
-            android:id="@+id/bombas"
+            android:id="@+id/regalo"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_margin="5dp"
             android:background="@drawable/fondo_recycler"
-            android:src="@mipmap/dynamite"
+            android:src="@mipmap/gift"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
 
@@ -96,21 +95,21 @@ tools:context=".MainActivity">
             android:layout_height="40dp"
             android:layout_margin="5dp"
             android:background="@drawable/fondo_recycler"
-            android:src="@mipmap/explosion"
+            android:src="@mipmap/star"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cant_explosion" />
+            app:layout_constraintTop_toBottomOf="@+id/cant_regalos" />
 
         <TextView
-            android:id="@+id/cant_explosion"
+            android:id="@+id/cant_regalos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="0"
             android:textColor="@color/black"
-            app:layout_constraintEnd_toEndOf="@id/bombas"
-            app:layout_constraintStart_toStartOf="@id/bombas"
-            app:layout_constraintTop_toBottomOf="@id/bombas"
+            app:layout_constraintEnd_toEndOf="@id/regalo"
+            app:layout_constraintStart_toStartOf="@id/regalo"
+            app:layout_constraintTop_toBottomOf="@id/regalo"
 
             />
 
@@ -131,7 +130,7 @@ tools:context=".MainActivity">
         android:layout_width="90dp"
         android:layout_height="90dp"
         android:layout_margin="10dp"
-        android:src="@mipmap/terrorist1"
+        android:src="@mipmap/elf"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

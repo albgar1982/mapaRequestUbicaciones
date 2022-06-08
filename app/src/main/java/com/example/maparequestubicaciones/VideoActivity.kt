@@ -1,5 +1,7 @@
 package com.example.maparequestubicaciones
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -7,9 +9,22 @@ import android.widget.MediaController
 import android.widget.Toast
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.maparequestubicaciones.databinding.ActivityVideoBinding
 
 class VideoActivity : AppCompatActivity() {
+    companion object {
+        const val TAG_TOKEN = "TAG_TOKEN"
+        const val TAG_USER = "TAG_USER"
 
+        fun launch(context: Context, user:String, token: String) {
+            val intent = Intent(context, VideoActivity::class.java)
+            intent.putExtra(TAG_TOKEN, token)
+            intent.putExtra(TAG_USER, user)
+            context.startActivity(intent)
+        }
+    }
+
+    private lateinit var binding : ActivityVideoBinding
     // declaring a null variable for VideoView
     var simpleVideoView: VideoView? = null
 
@@ -18,11 +33,15 @@ class VideoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityVideoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val token = intent.getStringExtra(TAG_TOKEN).toString()
+        val user = intent.getStringExtra(TAG_USER).toString()
 
         // assigning id of VideoView from
         // activity_main.xml layout file
-        simpleVideoView = findViewById<View>(R.id.videoView) as VideoView
+        simpleVideoView = binding.videoView
 
         if (mediaControls == null) {
             // creating an object of media controller class
@@ -37,8 +56,7 @@ class VideoActivity : AppCompatActivity() {
         // set the absolute path of the video file which is going to be played
         simpleVideoView!!.setVideoURI(
             Uri.parse(
-                "android.resource://"
-                        + packageName + "/" + R.raw.gfgvideo
+                "android.resource://" + packageName +"/"+R.raw.santa
             )
         )
 
@@ -47,13 +65,13 @@ class VideoActivity : AppCompatActivity() {
         // starting the video
         simpleVideoView!!.start()
 
-        // display a toast message
         // after the video is completed
         simpleVideoView!!.setOnCompletionListener {
-            Toast.makeText(
-                applicationContext, "Video completed",
-                Toast.LENGTH_LONG
-            ).show()
+            binding.button.visibility = View.VISIBLE
+        }
+
+        binding.button.setOnClickListener {
+            SeleccionRutaActivity.launch(this,user,token)
         }
 
         // display a toast message if any

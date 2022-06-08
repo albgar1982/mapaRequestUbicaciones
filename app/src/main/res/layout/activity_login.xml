@@ -4,116 +4,136 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="15dp"
-    android:background="@color/fondo_elegant"
+    android:layout_margin="10dp"
+    android:background="#FFE6C8C8"
     android:orientation="vertical"
     android:padding="15dp"
     tools:context=".LoginActivity">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="cursive"
-        android:gravity="center_horizontal"
-        android:text="@string/title"
-        android:textColor="@color/boton_elegant"
-        android:textSize="38sp" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="222dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="30dp"
-        android:src="@mipmap/imagen_inicio" />
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/fondo_recycler"
+        android:padding="15dp">
 
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_usuario"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/letra_elegant"
-            app:boxBackgroundColor="@color/white"
-            app:boxStrokeColor="@color/letra_elegant"
-            app:counterEnabled="true"
-            app:counterMaxLength="20"
-            app:errorEnabled="true">
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@mipmap/elf" />
 
-            <EditText
-                android:id="@+id/et_user"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/user"
-                android:inputType="text"
-                android:maxLines="1"
-                android:textColor="@color/letra_elegant" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
+                android:fontFamily="cursive"
+                android:gravity="center_horizontal"
+                android:text="REGISTRO"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/boton_elegant"
+                android:textSize="36sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:orientation="horizontal">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_contra"
+        <ImageView
+            android:layout_width="313dp"
+            android:layout_height="246dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="30dp"
+            android:src="@mipmap/splashelf" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/letra_elegant"
-            app:boxBackgroundColor="@color/white"
-            app:boxStrokeColor="@color/letra_elegant"
-            app:counterEnabled="true"
-            app:counterMaxLength="8"
-            app:errorEnabled="true"
-            app:passwordToggleEnabled="true">
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="10dp">
 
-            <EditText
-                android:id="@+id/et_contra"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_usuario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:textColor="@color/letra_elegant" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@color/letra_elegant"
+                app:boxBackgroundColor="@color/white"
+                app:boxStrokeColor="@color/letra_elegant"
+                app:counterEnabled="true"
+                app:counterMaxLength="8"
+                app:errorEnabled="true">
+
+                <EditText
+                    android:id="@+id/et_user"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/user"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/letra_elegant"
+                    android:background="@drawable/fondologin"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="10dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_contra"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/letra_elegant"
+                app:boxBackgroundColor="@color/white"
+                app:boxStrokeColor="@color/letra_elegant"
+                app:counterEnabled="true"
+                app:counterMaxLength="8"
+                app:errorEnabled="true"
+                app:passwordToggleEnabled="true">
+
+                <EditText
+                    android:id="@+id/et_contra"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/password"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:textColor="@color/letra_elegant"
+                    android:background="@drawable/fondologin"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_contra"
+            android:text="gyugyugyugygygyugyug"
+            android:textSize="18sp"
+            android:textColor="@color/red"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:paddingHorizontal="10dp"
+            android:visibility="gone"
+            android:paddingBottom="5dp"
+            android:background="@drawable/fondo_recycler"
+            />
+
+        <Button
+            android:id="@+id/b_siguiente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="10dp"
+            android:backgroundTint="@color/boton_elegant"
+            android:enabled="false"
+            android:text="@string/next" />
+
     </LinearLayout>
-
-    <Button
-        android:id="@+id/b_siguiente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="@color/boton_elegant"
-        android:enabled="false"
-        android:text="@string/next" />
-    <TextView
-        android:id="@+id/tv_contra"
-        android:layout_marginTop="30dp"
-        android:text=""
-        android:textSize="24sp"
-        android:textColor="@color/red"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"/>
-
-    <TextView
-        android:id="@+id/tv_sin_registrar"
-        android:layout_marginTop="30dp"
-        android:text="Iniciar sesión sin registrarse"
-        android:textSize="24sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"/>
-
-
-
 </LinearLayout>

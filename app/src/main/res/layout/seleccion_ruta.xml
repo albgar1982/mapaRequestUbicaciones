@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".SeleccionRutaActivity"
     android:orientation="vertical"
-    android:background="@mipmap/fondo">
+    android:background="@mipmap/f">
 
     <ProgressBar
         android:id="@+id/pb_downloading"

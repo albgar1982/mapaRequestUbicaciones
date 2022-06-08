@@ -1,11 +1,14 @@
 <resources>
-    <string name="app_name">Instant Crash</string>
+    <string name="app_name">The elf</string>
     <string name="user">Usuario</string>
     <string name="password">Contraseña</string>
     <string name="next">SIGUIENTE</string>
-    <string name="title">Instant Crash</string>
+    <string name="title">The elf</string>
     <string name="usuario">Usuario</string>
     <string name="nombre">Nombre</string>
     <string name="escoja_una_ruta">ESCOJA UNA RUTA</string>
     <string name="siguiente_objetivo">Siguiente objetivo</string>
+    <string name="siguiente_regalo">Siguiente regalo</string>
+    <string name="colocar_el_regalo">Mueva el dispositivo ligeramente para identificar planos. Le avisaremos cuando pueda colocar el regalo.</string>
+    <string name="mensaje_premio">Recibes una estrella por haber completado una ruta!!!</string>
 </resources>

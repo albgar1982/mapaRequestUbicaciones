@@ -53,7 +53,7 @@ class LoginActivityViewModel : ViewModel() {
     fun hacerLlamadaRegistro(contraseniaCifrada : String,usuario: String,context: Context) {
         val client = OkHttpClient()
         val request = Request.Builder()
-        request.url("https://4a9c-139-47-74-123.eu.ngrok.io/loguear/$usuario")
+        request.url("https://1f77-139-47-74-123.eu.ngrok.io/loguear/$usuario")
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = contraseniaCifrada.toRequestBody(mediaType)
         println("Envío en el requestBody la contra cifrada: $contraseniaCifrada")
@@ -98,7 +98,6 @@ private fun cifrar(contra: String, llave: String): String {
     val cifrado = android.util.Base64.encodeToString(texto,android.util.Base64.URL_SAFE)
     println("He obtenido $cifrado")
     return cifrado
-
 }
 
 private fun getKey(llaveEnString : String): SecretKeySpec {

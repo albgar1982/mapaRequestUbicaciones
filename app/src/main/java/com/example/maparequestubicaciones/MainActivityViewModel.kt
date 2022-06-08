@@ -34,7 +34,7 @@ class MainActivityViewModel : ViewModel() {
 
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                request.url("https://4a9c-139-47-74-123.eu.ngrok.io/getProgress/$usuario/$ruta/$token")
+                request.url("https://1f77-139-47-74-123.eu.ngrok.io/getProgress/$usuario/$ruta/$token")
 
                 val call = client.newCall(request.build())
                 call.enqueue(object : Callback {
@@ -67,16 +67,5 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 }
-/* fun inicializarMaps(){
-     val mapFragment = supportFragmentManager.findFragmentById(R.id.mapa) as SupportMapFragment
-     mapFragment.getMapAsync { }
-
-             /* googleMap.addMarker(MarkerOptions().position(it).title("Estoy aquí")
-                  .anchor(0.5F,0.5F)
-              )
-              googleMap.moveCamera(CameraUpdateFactory.newLatLng(it))
-              // googleMap.setMinZoomPreference(googleMap.maxZoomLevel)
-          */
- }*/
 
 
